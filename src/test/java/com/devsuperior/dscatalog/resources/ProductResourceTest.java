@@ -4,7 +4,6 @@ import com.devsuperior.dscatalog.dto.ProductDTO;
 import com.devsuperior.dscatalog.factory.Factory;
 import com.devsuperior.dscatalog.services.ProductService;
 import com.devsuperior.dscatalog.services.exceptions.ResourceNotFoundException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,7 +42,7 @@ class ProductResourceTest {
 
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         productDTO = Factory.createProductDTO();
         page = new PageImpl<>(List.of(productDTO));
         existingId = 1L;
