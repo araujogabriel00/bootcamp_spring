@@ -1,20 +1,20 @@
 package com.devsuperior.dscatalog.dto;
 
-public class UserInsertDTO extends UserDTO{
+public class UserInsertDTO extends UserDTO {
 
     private static final long seriversionUID = 1L;
 
     private String password;
 
-    UserInsertDTO(){
+    UserInsertDTO() {
         super();
     }
 
-    public String getPassword(){
+    public String getPassword() {
         return password;
     }
 
-    public void setPassword(String password){
+    public void setPassword(String password) {
         this.password = password;
     }
 

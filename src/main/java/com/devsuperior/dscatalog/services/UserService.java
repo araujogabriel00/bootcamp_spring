@@ -1,10 +1,8 @@
 package com.devsuperior.dscatalog.services;
 
-import com.devsuperior.dscatalog.dto.CategoryDTO;
 import com.devsuperior.dscatalog.dto.RoleDTO;
 import com.devsuperior.dscatalog.dto.UserDTO;
 import com.devsuperior.dscatalog.dto.UserInsertDTO;
-import com.devsuperior.dscatalog.entities.Category;
 import com.devsuperior.dscatalog.entities.Role;
 import com.devsuperior.dscatalog.entities.User;
 import com.devsuperior.dscatalog.repositories.RoleRepository;
@@ -16,6 +14,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,70 +24,70 @@ import java.util.Optional;
 @Service
 public class UserService {
 
-	@Autowired
-	private UserRepository repository;
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
-	@Autowired
-	private RoleRepository roleRepository;
+    @Autowired
+    private UserRepository repository;
 
-	@Transactional(readOnly = true)
-	public Page<UserDTO> findAllPaged(Pageable pageable) {
-		Page<User> list = repository.findAll(pageable);
-		return list.map(x -> new UserDTO(x));
-	}
+    @Autowired
+    private RoleRepository roleRepository;
 
-	@Transactional(readOnly = true)
-	public UserDTO findById(Long id) {
-		Optional<User> obj = repository.findById(id);
-		User entity = obj.orElseThrow(() -> new ResourceNotFoundException("Entity not found"));
-		return new UserDTO(entity);
-	}
+    @Transactional(readOnly = true)
+    public Page<UserDTO> findAllPaged(Pageable pageable) {
+        Page<User> list = repository.findAll(pageable);
+        return list.map(x -> new UserDTO(x));
+    }
 
-	@Transactional
-	public UserDTO insert(UserInsertDTO dto) {
-		User entity = new User();
-		copyDtoToEntity(dto, entity);
-		entity.setPassword(dto.getPassword());
-		entity = repository.save(entity);
-		return new UserDTO(entity);
-	}
+    @Transactional(readOnly = true)
+    public UserDTO findById(Long id) {
+        Optional<User> obj = repository.findById(id);
+        User entity = obj.orElseThrow(() -> new ResourceNotFoundException("Entity not found"));
+        return new UserDTO(entity);
+    }
 
-	@Transactional
-	public UserDTO update(Long id, UserDTO dto) {
-		try {
-			User entity = repository.getOne(id);
-			copyDtoToEntity(dto, entity);
-			entity = repository.save(entity);
-			return new UserDTO(entity);
-		}
-		catch (EntityNotFoundException e) {
-			throw new ResourceNotFoundException("Id not found " + id);
-		}
-	}
+    @Transactional
+    public UserDTO insert(UserInsertDTO dto) {
+        User entity = new User();
+        copyDtoToEntity(dto, entity);
+        entity.setPassword(passwordEncoder.encode(dto.getPassword()));
+        entity = repository.save(entity);
+        return new UserDTO(entity);
+    }
 
-	public void delete(Long id) {
-		try {
-			repository.deleteById(id);
-		}
-		catch (EmptyResultDataAccessException e) {
-			throw new ResourceNotFoundException("Id not found " + id);
-		}
-		catch (DataIntegrityViolationException e) {
-			throw new DatabaseException("Integrity violation");
-		}
-	}
+    @Transactional
+    public UserDTO update(Long id, UserDTO dto) {
+        try {
+            User entity = repository.getOne(id);
+            copyDtoToEntity(dto, entity);
+            entity = repository.save(entity);
+            return new UserDTO(entity);
+        } catch (EntityNotFoundException e) {
+            throw new ResourceNotFoundException("Id not found " + id);
+        }
+    }
 
-	private void copyDtoToEntity(UserDTO dto, User entity) {
+    public void delete(Long id) {
+        try {
+            repository.deleteById(id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResourceNotFoundException("Id not found " + id);
+        } catch (DataIntegrityViolationException e) {
+            throw new DatabaseException("Integrity violation");
+        }
+    }
 
-		entity.setFirstName(dto.getFirstName());
-		entity.setLastName(dto.getLastName());
-		entity.setLastName(dto.getEmail());
+    private void copyDtoToEntity(UserDTO dto, User entity) {
 
-		entity.getRole().clear();
+        entity.setFirstName(dto.getFirstName());
+        entity.setLastName(dto.getLastName());
+        entity.setEmail(dto.getEmail());
 
-		for (RoleDTO roleDTO : dto.getRoles()) {
-			Role role = roleRepository.getOne(roleDTO.getId());
-			entity.getRole().add(role);
-		}
-	}
+        entity.getRole().clear();
+
+        for (RoleDTO roleDTO : dto.getRoles()) {
+            Role role = roleRepository.getOne(roleDTO.getId());
+            entity.getRole().add(role);
+        }
+    }
 }
