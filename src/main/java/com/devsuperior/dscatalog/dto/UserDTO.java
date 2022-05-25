@@ -3,6 +3,7 @@ package com.devsuperior.dscatalog.dto;
 import com.devsuperior.dscatalog.entities.Role;
 import com.devsuperior.dscatalog.entities.User;
 
+import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -10,12 +11,15 @@ import java.util.Set;
 public class UserDTO  implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    @NotEmpty(message = "Campo obrigatório")
     private Long id;
     private String firstName;
     private String lastName;
+
+    @NotEmpty(message = "E-mail obrigatório")
     private String email;
 
-    Set<RoleDTO> roles = new HashSet<RoleDTO>();
+    Set<RoleDTO> roles = new HashSet<>();
 
     public UserDTO() {
 
