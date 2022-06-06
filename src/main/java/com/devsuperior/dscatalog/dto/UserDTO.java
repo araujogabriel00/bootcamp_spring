@@ -11,7 +11,6 @@ import java.util.Set;
 public class UserDTO  implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @NotEmpty(message = "Campo obrigatório")
     private Long id;
     private String firstName;
     private String lastName;
